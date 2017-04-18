@@ -1,4 +1,4 @@
-# IsDebug
+# DotNetAssemblyInformer
 Check presence of DebuggableAttribute.IsJITOptimizerDisabled in your assemblies
 
 Why ?
@@ -8,7 +8,7 @@ Your project settings could be wrong, your build process could be broken or you 
 How to use
 -----------
 `
-	> isdebug [OPTIONS] PATH1 PATH2 
+	> DotNetAssemblyInformer [OPTIONS] PATH1 PATH2 
 `
 
 OPTIONS :
