@@ -2,10 +2,10 @@
 {
     public class IsDebugResult
     {
-        public bool? HasDebuggableAttribute { get; set; }
-        public bool? IsJITOptimized { get; set; }
+        public bool HasDebuggableAttribute { get; set; }
+        public bool IsJITOptimized { get; set; }
 
-        public BuildType Build => IsJITOptimized ?? false ? BuildType.Release : BuildType.Debug;
+        public BuildType Build => IsJITOptimized  ? BuildType.Release : BuildType.Debug;
 
         public DebugOutputType DebugOutput { get; set; }
     }
