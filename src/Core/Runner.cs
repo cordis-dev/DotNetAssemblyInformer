@@ -30,7 +30,7 @@ namespace DotNetAssemblyInformer.Core
                     if ((debugerror = AssemblyUtils.TryIsDebug(assembly, out isdebugResult)) == string.Empty)
                         results.Ok(startPath, isdebugResult);
                     else
-                        results.Fail(errorMessage);
+                        results.Fail(debugerror);
                 }
                 else
                     results.Fail(errorMessage);

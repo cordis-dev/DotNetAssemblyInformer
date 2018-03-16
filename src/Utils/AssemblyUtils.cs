@@ -61,8 +61,13 @@ namespace DotNetAssemblyInformer.Utils
             }
             catch (FileNotFoundException fne)
             {
-                return string.Format("Could not load {0} from . Reason : {1}", fne.FileName, assembly.FullName);
+                return $"Could not load {fne.FileName}. Reason : {assembly.FullName}";
             }
+            catch (TypeLoadException typeLoadException)
+            {
+                return $"Could not load {assembly.FullName}. Reason : {typeLoadException.Message}";
+            }
+
             // If the 'DebuggableAttribute' is not found then it is definitely an OPTIMIZED build
             if (attribs.Length > 0)
             {
