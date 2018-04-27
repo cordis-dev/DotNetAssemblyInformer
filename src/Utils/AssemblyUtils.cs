@@ -32,13 +32,13 @@ namespace DotNetAssemblyInformer.Utils
             {
                 assembly = Assembly.LoadFrom(assemblyPath);
             }
-            catch (FileLoadException fex)
+            catch (FileLoadException exception)
             {
-                return $"Could not load {assemblyPath}. Reason: {fex.Message}";
+                return $"Could not load {assemblyPath}. Reason: {exception.Message}";
             }
-            catch (BadImageFormatException biex)
+            catch (BadImageFormatException exception)
             {
-                return $"Could not load {assemblyPath}. Reason: {biex.Message}";
+                return $"Could not load {assemblyPath}. Reason: {exception.Message}";
             }
 
             return string.Empty;
@@ -59,13 +59,21 @@ namespace DotNetAssemblyInformer.Utils
             {
                 attribs = assembly.GetCustomAttributes(typeof(DebuggableAttribute), false);
             }
-            catch (FileNotFoundException fne)
+            catch (FileNotFoundException exception)
             {
-                return $"Could not load {fne.FileName}. Reason : {assembly.FullName}";
+                return $"Could not load {exception.FileName}. Reason : {assembly.FullName}";
             }
-            catch (TypeLoadException typeLoadException)
+            catch (TypeLoadException exception)
             {
-                return $"Could not load {assembly.FullName}. Reason : {typeLoadException.Message}";
+                return $"Could not load {assembly.FullName}. Reason : {exception.Message}";
+            }
+            catch (FileLoadException exception)
+            {
+                return $"Could not load {assembly.FullName}. Reason: {exception.Message}";
+            }
+            catch (BadImageFormatException exception)
+            {
+                return $"Could not load {exception.FileName}. Reason: {exception.Message}";
             }
 
             // If the 'DebuggableAttribute' is not found then it is definitely an OPTIMIZED build
