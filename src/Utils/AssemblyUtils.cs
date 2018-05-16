@@ -40,6 +40,10 @@ namespace DotNetAssemblyInformer.Utils
             {
                 return $"Could not load {assemblyPath}. Reason: {exception.Message}";
             }
+            catch (ArgumentException exception)
+            {
+                return $"Could not load {assembly.FullName}. Reason: {exception.Message}";
+            }
 
             return string.Empty;
         }
@@ -74,6 +78,10 @@ namespace DotNetAssemblyInformer.Utils
             catch (BadImageFormatException exception)
             {
                 return $"Could not load {exception.FileName}. Reason: {exception.Message}";
+            }
+            catch (ArgumentException exception)
+            {
+                return $"Could not load {assembly.FullName}. Reason: {exception.Message}";
             }
 
             // If the 'DebuggableAttribute' is not found then it is definitely an OPTIMIZED build
