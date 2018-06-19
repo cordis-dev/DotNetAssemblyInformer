@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace DotNetAssemblyInformer.Utils
 {
     internal class AssemblyUtils
     {
+        private static readonly Dictionary<string, Assembly> locationsWithAssemblies = new Dictionary<string, Assembly>();
+
         public static LoadAssemblyResponse Load(string assemblyPath)
         {
             var response = new LoadAssemblyResponse();
@@ -27,14 +30,45 @@ namespace DotNetAssemblyInformer.Utils
 
             try
             {
-                response.Assembly = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
+                response.Assembly = GetAssembly(assemblyPath);
+                locationsWithAssemblies.Add(response.Assembly.Location, response.Assembly);
+
+                // to ensure that TryIsDebug will work whether or not assembly references have been previously loaded into AppDomain
+                var referencedAssemblies = response.Assembly.GetReferencedAssemblies();
+                foreach (var referencedAssembly in referencedAssemblies)
+                {
+                    try
+                    {
+                        var assembly = Assembly.ReflectionOnlyLoad(referencedAssembly.FullName);
+                        locationsWithAssemblies.Add(assembly.Location, assembly);
+                    }
+                    catch (Exception)
+                    {
+                        // ignore
+                    }
+                }
             }
             catch (Exception exception)
             {
-                response.ErrorMessage = $"Could not load {assemblyPath}. Reason: {exception.Message}";
+                if (!exception.Message.Contains("has already loaded from a different location"))
+                {
+                    response.ErrorMessage = $"Could not load {assemblyPath}. Reason: {exception.Message}";
+                }
             }
 
             return response;
+        }
+
+        private static Assembly GetAssembly(string assemblyPath)
+        {
+            var locationToCheck = Path.Combine(Environment.CurrentDirectory, assemblyPath);
+
+            if (locationsWithAssemblies.ContainsKey(locationToCheck))
+            {
+                return locationsWithAssemblies[locationToCheck];
+            }
+
+            return Assembly.ReflectionOnlyLoadFrom(assemblyPath);
         }
 
         public static TryIsDebugResponse TryIsDebug(Assembly assembly)
