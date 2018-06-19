@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using DotNetAssemblyInformer.Utils;
 
 namespace DotNetAssemblyInformer.Core
@@ -21,19 +20,30 @@ namespace DotNetAssemblyInformer.Core
 
             foreach (var startPath in settings.StartPaths)
             {
-                Assembly assembly;
-                string errorMessage;
-                if ((errorMessage = AssemblyUtils.Load(startPath, out assembly)) == string.Empty)
+                var loadAssemblyResult = AssemblyUtils.Load(startPath);
+                if (loadAssemblyResult.ErrorMessage != null)
                 {
-                    IsDebugResult isdebugResult;
-                    string debugerror = string.Empty;
-                    if ((debugerror = AssemblyUtils.TryIsDebug(assembly, out isdebugResult)) == string.Empty)
-                        results.Ok(startPath, isdebugResult);
-                    else
-                        results.Fail(debugerror);
+                    results.Fail(loadAssemblyResult.ErrorMessage);
+                    continue;
                 }
-                else
-                    results.Fail(errorMessage);
+
+                if (loadAssemblyResult.Assembly == null)
+                {
+                    continue;
+                }
+
+                var tryIsDebugResponse = AssemblyUtils.TryIsDebug(loadAssemblyResult.Assembly);
+
+                if (tryIsDebugResponse.ErrorMessage != null)
+                {
+                    results.Fail(tryIsDebugResponse.ErrorMessage);
+                    continue;
+                }
+
+                if (tryIsDebugResponse.Result != null)
+                {
+                    results.Ok(startPath, tryIsDebugResponse.Result);
+                }
             }
 
             return results;
