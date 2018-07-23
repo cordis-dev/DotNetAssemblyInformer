@@ -83,26 +83,26 @@ namespace DotNetAssemblyInformer.Utils
                                         }
                            };
 
-            CustomAttributeData reflectedAttribute;
+            CustomAttributeTypedArgument debuggingModesArgument;
 
             try
             {
-                reflectedAttribute = CustomAttributeData.GetCustomAttributes(assembly)
+                var reflectedAttribute = CustomAttributeData.GetCustomAttributes(assembly)
                     .FirstOrDefault(data => data.AttributeType == typeof(DebuggableAttribute));
+
+                if (reflectedAttribute == null)
+                {
+                    return response;
+                }
+
+                debuggingModesArgument = reflectedAttribute.ConstructorArguments
+                    .FirstOrDefault(argument => argument.ArgumentType == typeof(DebuggableAttribute.DebuggingModes));
             }
             catch (Exception exception)
             {
                 response.ErrorMessage = $"Could not load {assembly.FullName}. Reason: {exception.Message}";
                 return response;
             }
-
-            if (reflectedAttribute == null)
-            {
-                return response;
-            }
-
-            var debuggingModesArgument = reflectedAttribute.ConstructorArguments
-                .FirstOrDefault(argument => argument.ArgumentType == typeof(DebuggableAttribute.DebuggingModes));
 
             var argumentIntValue = debuggingModesArgument.Value as int?;
             if (argumentIntValue != null)
